@@ -1,8 +1,8 @@
-const CHANGE_ACTIVE = 'CHANGE_ACTIVE'
+import * as types from '../constants'
 
 function changeActive(n) {
     return {
-        type: CHANGE_ACTIVE,
+        type: types.CHANGE_ACTIVE,
         id: n
     }
 }

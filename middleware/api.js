@@ -1,6 +1,7 @@
-export const CALL_API = Symbol('Call API')
+import * as types from '../constants'
 
-// const API_ROOT = 'https://api.github.com
+export const CALL_API = Symbol('Call API')
+export const POST_API = Symbol('POST API')
 
 function getApi() {
     return fetch('/test.json')
@@ -15,9 +16,7 @@ function getApi() {
 
 export default store => next => action => {
     const callAPI = action[CALL_API]
-    if (typeof callAPI === 'undefined') {
-        return next(action)
-    }
+    const postAPI = action[POST_API]
 
     //请求成功
     function nextAction(data) {
@@ -25,16 +24,26 @@ export default store => next => action => {
         return finalAction
     }
 
-    return getApi().then(
-        result => next(nextAction({
+    let success = result => next(nextAction({
             result,
-            type: 'success'
-        })),
-        error => next(nextAction({
-            //这里就是错误了 错误信息没什么用
-            type: 'error',
-            error: '网络错误！请稍后重试！' || error.message
+            type: types.SUCCESS
         }))
-    )
 
+    let error = result => next(nextAction({
+            //这里就是错误了 错误信息没什么用
+            type: types.FAILED,
+            result: '网络错误！请稍后重试！' || result.message
+        }))
+
+    if (typeof callAPI !== 'undefined') {
+        // get
+        return getApi().then(
+            success,
+            error
+        )
+    } else if (typeof postAPI !== 'undefined') {
+        // post
+    } else {
+        return next(action)
+    }
 }
